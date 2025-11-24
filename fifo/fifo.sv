@@ -1,4 +1,4 @@
-module sync_fifo #(
+module fifo #(
     parameter int DATA_WIDTH = 8,
     parameter int DEPTH = 16
 ) (
@@ -19,15 +19,15 @@ module sync_fifo #(
     logic [ADDR_WIDTH-1:0] r_ptr;
     logic [ADDR_WIDTH:0] count;
 
-    assign full  = (count == DEPTH);
-    assign empty = (count == 0);
+    assign full  = (count == (ADDR_WIDTH + 1)'(DEPTH));
+    assign empty = (count == '0);
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             w_ptr <= '0;
         end else if (wr_en && !full) begin
             mem[w_ptr] <= wdata;
-            w_ptr      <= (w_ptr == DEPTH - 1) ? '0 : w_ptr + 1;
+            w_ptr      <= (w_ptr == ADDR_WIDTH'(DEPTH - 1)) ? '0 : w_ptr + 1;
         end
     end
 
@@ -37,7 +37,7 @@ module sync_fifo #(
             rdata <= '0;
         end else if (rd_en && !empty) begin
             rdata <= mem[r_ptr];
-            r_ptr <= (r_ptr == DEPTH - 1) ? '0 : r_ptr + 1;
+            r_ptr <= (r_ptr == ADDR_WIDTH'(DEPTH - 1)) ? '0 : r_ptr + 1;
         end
     end
 
