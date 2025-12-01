@@ -17,9 +17,13 @@
  *
  */
 
+`include "defines.sv"
+`include "rvfi_channel.sv"
+
 module rvfi_wrapper (
 	input         clock,
 	input         reset,
+	input         check,
 	`RVFI_OUTPUTS
 	`RVFI_BUS_OUTPUTS
 );
@@ -48,6 +52,7 @@ module rvfi_wrapper (
 	nerv uut (
 		.clock      (clock    ),
 		.reset      (reset    ),
+		.check      (check    ),
 		.stall      (stall    ),
 		.trap       (trap     ),
 
@@ -152,4 +157,36 @@ module rvfi_wrapper (
 		assume (~stalled);
 	end
 `endif
+endmodule
+
+module testbench (
+	`ifdef RISCV_FORMAL_UNBOUNDED
+	`ifdef RISCV_FORMAL_TRIG_CYCLE
+		input trig,
+	`endif
+	`ifdef RISCV_FORMAL_CHECK_CYCLE
+		input check,
+	`endif
+	`endif
+	input clock, reset
+);
+	`RVFI_WIRES
+	`RVFI_BUS_WIRES
+
+	always_comb assume (reset == $initstate);
+
+	reg [7:0] cycle_reg = 0;
+	wire [7:0] cycle = reset ? 8'd 0 : cycle_reg;
+
+	always @(posedge clock) begin
+		cycle_reg <= reset ? 8'd 1 : cycle_reg + (cycle_reg != 8'h ff);
+	end
+
+	rvfi_wrapper wrapper (
+		.clock (clock),
+		.reset (reset),
+		.check (check),
+		`RVFI_CONN
+		`RVFI_BUS_CONN
+	);
 endmodule

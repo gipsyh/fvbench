@@ -212,6 +212,9 @@ module nerv #(
 	input clock,
 	input reset,
 	input stall,
+`ifdef FORMAL
+	input check,
+`endif
 	output trap,
 
 `ifdef NERV_RVFI
@@ -1193,5 +1196,36 @@ module nerv #(
 `endif
 		end
 	end
+
+
+`ifdef FORMAL
+	`rvformal_rand_const_reg [63:0] insn_order;
+	reg [`RISCV_FORMAL_XLEN-1:0] expect_pc;
+	reg expect_pc_valid = 0;
+
+	wire [`RISCV_FORMAL_XLEN-1:0] pc_rdata = rvfi_pc_rdata[`RISCV_FORMAL_CHANNEL_IDX*`RISCV_FORMAL_XLEN +: `RISCV_FORMAL_XLEN];
+
+	always @(posedge clock) begin
+		if (reset) begin
+			expect_pc_valid = 0;
+		end else begin
+			if (rvfi_valid && !next_rvfi_intr[`RISCV_FORMAL_CHANNEL_IDX])
+				assert(pc == rvfi_pc_wdata);
+			if (check) begin
+				assume(rvfi_valid[`RISCV_FORMAL_CHANNEL_IDX]);
+				assume(insn_order == rvfi_order);
+				if (expect_pc_valid && !rvfi_intr[`RISCV_FORMAL_CHANNEL_IDX]) begin
+					assert(`rvformal_addr_eq(expect_pc, pc_rdata));
+				end
+			end else begin
+				if (rvfi_valid && rvfi_order == insn_order-1) begin
+					assert(expect_pc_valid == 0);
+					expect_pc = rvfi_pc_wdata;
+					expect_pc_valid = 1;
+				end
+			end
+		end
+	end
+`endif
 
 endmodule

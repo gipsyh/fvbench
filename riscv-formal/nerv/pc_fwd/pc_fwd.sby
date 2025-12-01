@@ -6,14 +6,13 @@ expect pass,fail
 btor --nomem rIC3
 
 [script]
-read -formal -sv pc_fwd.sv wrapper.sv nerv.sv
-prep -flatten -nordff -top rvfi_testbench
+read -formal -sv tb.sv nerv.sv
+prep -flatten -nordff -top testbench
 chformal -early
 
 [files]
-pc_fwd.sv
-../wrapper.sv
-../nerv.sv
+tb.sv
+nerv.sv
 ../../rvfi_macros.vh
 ../../rvfi_channel.sv
 
