@@ -1197,35 +1197,40 @@ module nerv #(
 		end
 	end
 
-
-`ifdef FORMAL
+/// PC Fwd Check
 	`rvformal_rand_const_reg [63:0] insn_order;
 	reg [`RISCV_FORMAL_XLEN-1:0] expect_pc;
 	reg expect_pc_valid = 0;
 
 	wire [`RISCV_FORMAL_XLEN-1:0] pc_rdata = rvfi_pc_rdata[`RISCV_FORMAL_CHANNEL_IDX*`RISCV_FORMAL_XLEN +: `RISCV_FORMAL_XLEN];
 
+	integer channel_idx;
 	always @(posedge clock) begin
 		if (reset) begin
 			expect_pc_valid = 0;
 		end else begin
-			if (rvfi_valid && !next_rvfi_intr[`RISCV_FORMAL_CHANNEL_IDX])
-				assert(pc == rvfi_pc_wdata);
 			if (check) begin
+				for (channel_idx = 0; channel_idx < `RISCV_FORMAL_CHANNEL_IDX; channel_idx=channel_idx+1) begin
+					if (rvfi_valid[channel_idx] && rvfi_order[64*channel_idx +: 64] == insn_order-1) begin
+						expect_pc = rvfi_pc_wdata[channel_idx*`RISCV_FORMAL_XLEN +: `RISCV_FORMAL_XLEN];
+						expect_pc_valid = 1;
+					end
+				end
+
 				assume(rvfi_valid[`RISCV_FORMAL_CHANNEL_IDX]);
-				assume(insn_order == rvfi_order);
+				assume(insn_order == rvfi_order[64*`RISCV_FORMAL_CHANNEL_IDX +: 64]);
 				if (expect_pc_valid && !rvfi_intr[`RISCV_FORMAL_CHANNEL_IDX]) begin
 					assert(`rvformal_addr_eq(expect_pc, pc_rdata));
 				end
 			end else begin
-				if (rvfi_valid && rvfi_order == insn_order-1) begin
-					assert(expect_pc_valid == 0);
-					expect_pc = rvfi_pc_wdata;
-					expect_pc_valid = 1;
+				for (channel_idx = 0; channel_idx < `RISCV_FORMAL_NRET; channel_idx=channel_idx+1) begin
+					if (rvfi_valid[channel_idx] && rvfi_order[64*channel_idx +: 64] == insn_order-1) begin
+						expect_pc = rvfi_pc_wdata[channel_idx*`RISCV_FORMAL_XLEN +: `RISCV_FORMAL_XLEN];
+						expect_pc_valid = 1;
+					end
 				end
 			end
 		end
 	end
-`endif
 
 endmodule
