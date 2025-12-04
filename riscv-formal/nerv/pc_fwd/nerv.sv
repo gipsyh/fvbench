@@ -1233,4 +1233,45 @@ module nerv #(
 		end
 	end
 
+/// Supporting Assertion
+	reg expect_pc_valid_shadow = 0;
+	reg expect_pc_valid_shadow_exec = 0;
+	reg expect_pc_valid_shadow_intr = 0;
+	always @(posedge clock) begin
+		if (reset || reset_q) begin
+			expect_pc_valid_shadow <= 0;
+			expect_pc_valid_shadow_exec <= 0;
+			expect_pc_valid_shadow_intr <= 0;
+			if (reset_q && !reset)
+				assert(!expect_pc_valid && !rvfi_valid);
+		end else begin
+			if (rvfi_valid) begin
+				expect_pc_valid_shadow <= rvfi_order == insn_order-1;
+				expect_pc_valid_shadow_exec <= !stall;
+				expect_pc_valid_shadow_intr <= cycle_intr || next_rvfi_intr;
+			end else if(expect_pc_valid_shadow) begin
+				expect_pc_valid_shadow_exec <= expect_pc_valid_shadow_exec || !stall;
+				expect_pc_valid_shadow_intr <= expect_pc_valid_shadow_intr || cycle_intr;
+			end
+
+			assert(!(cycle_late_wr && rvfi_trap));
+			if (rvfi_valid && !rvfi_trap)
+				assert(pc == rvfi_pc_wdata);
+			if (!rvfi_valid && expect_pc_valid_shadow && !expect_pc_valid_shadow_intr)
+				if (!expect_pc_valid_shadow_exec)
+					assert(expect_pc == pc);
+				else
+					assert(expect_pc == rvfi_pc_rdata);
+			if (rvfi_valid)
+				assert(!cycle_dmem_fault && !cycle_late_wr);
+			if (stall) begin
+				if (mem_rd_enable_q || mem_wr_enable_q) begin
+					assert(pc == rvfi_pc_wdata);
+					assert(!rvfi_trap);
+				end
+			end else begin
+				assert(cycle_insn || cycle_trap || cycle_late_wr || cycle_intr || cycle_dmem_fault);
+			end
+		end
+	end
 endmodule
