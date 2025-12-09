@@ -1234,4 +1234,21 @@ module nerv #(
 		end
 	end
 
+/// Helper Assertion
+/// Proved by rIC3 1.5.2
+	always @(posedge clock) begin
+		if (reset || reset_q) begin
+			if (reset_q && !reset)
+				assert(!register_written && !rvfi_valid);
+		end else begin
+			if (rvfi_valid && rvfi_rd_addr == 0)
+				assert(rvfi_rd_wdata == 0);
+			if (register_written) begin
+				if (register_index)
+					assert(register_shadow == $past(regfile[register_index]));
+				else
+					assert(register_shadow == 0);
+			end
+		end
+	end
 endmodule

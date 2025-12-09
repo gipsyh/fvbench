@@ -1233,7 +1233,8 @@ module nerv #(
 		end
 	end
 
-/// Supporting Assertion
+/// Helper Assertion
+/// Proved by rIC3 1.5.2
 	reg expect_pc_valid_shadow = 0;
 	reg expect_pc_valid_shadow_exec = 0;
 	reg expect_pc_valid_shadow_intr = 0;
