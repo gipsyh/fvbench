@@ -15,4 +15,4 @@ tb.sv
 nerv.sv
 ../../rvfi_macros.vh
 ../../rvfi_channel.sv
-../../defines.sv
+../defines.sv
