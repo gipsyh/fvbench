@@ -1,0 +1,12 @@
+[options]
+mode live
+
+[engines]
+aiger suprove
+
+[script]
+read -formal -sv fifo.sv
+prep -top fifo
+
+[files]
+fifo.sv
