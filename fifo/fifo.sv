@@ -56,45 +56,30 @@ module fifo #(
     end
 
     always_comb assume (!rst_n == $initstate);
-
-    reg [DATA_WIDTH-1:0] first_data;
-    reg first_push;
-    reg first_pop;
-    reg [DATA_WIDTH-1:0] second_data;
-    reg second_push;
-    reg second_pop;
+    reg [ADDR_WIDTH-1:0] cr_count;
+    reg [ADDR_WIDTH-1:0] push_count;
+    reg [ADDR_WIDTH-1:0] pop_count;
+    reg [DATA_WIDTH-1:0] check_data;
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            first_push  <= 0;
-            first_pop   <= 0;
-            second_push <= 0;
-            second_pop  <= 0;
+            push_count <= 0;
+            pop_count  <= 0;
         end else begin
-            first_data  <= first_data;
-            second_data <= second_data;
-            assert ($stable(first_data));
-            assert ($stable(second_data));
-
+            cr_count <= cr_count;
+            assert ($stable(cr_count));
             if (wr_en && !full) begin
-                if (!first_push && first_data == wdata) begin
-                    first_push <= 1;
-                end else if (first_push && second_data == wdata) begin
-                    second_push <= 1;
+                push_count <= push_count + 1;
+                if (push_count == cr_count) begin
+                    check_data <= wdata;
                 end
             end
-
             if (rd_en && !empty) begin
-                if (first_push && first_data == mem[r_ptr]) begin
-                    first_pop <= 1;
-                end
-                if (first_pop && second_push && second_data == mem[r_ptr]) begin
-                    second_pop <= 1;
+                pop_count <= pop_count + 1;
+                if (pop_count == cr_count) begin
+                    assert (check_data == mem[pop_count]);
                 end
             end
-
-            assert (s_eventually(second_pop));
-
         end
     end
 endmodule

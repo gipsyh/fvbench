@@ -1,8 +1,8 @@
 [options]
-mode live
+mode prove
 
 [engines]
-aiger suprove
+btor rIC3
 
 [script]
 read -formal -sv fifo.sv
