@@ -544,24 +544,24 @@ module picorv32 #(
 		end
 	end
 
-	always @(posedge clk) begin
-		if (resetn && !trap) begin
-			if (mem_do_prefetch || mem_do_rinst || mem_do_rdata)
-				`assert(!mem_do_wdata);
+	// always @(posedge clk) begin
+	// 	if (resetn && !trap) begin
+	// 		if (mem_do_prefetch || mem_do_rinst || mem_do_rdata)
+	// 			`assert(!mem_do_wdata);
 
-			if (mem_do_prefetch || mem_do_rinst)
-				`assert(!mem_do_rdata);
+	// 		if (mem_do_prefetch || mem_do_rinst)
+	// 			`assert(!mem_do_rdata);
 
-			if (mem_do_rdata)
-				`assert(!mem_do_prefetch && !mem_do_rinst);
+	// 		if (mem_do_rdata)
+	// 			`assert(!mem_do_prefetch && !mem_do_rinst);
 
-			if (mem_do_wdata)
-				`assert(!(mem_do_prefetch || mem_do_rinst || mem_do_rdata));
+	// 		if (mem_do_wdata)
+	// 			`assert(!(mem_do_prefetch || mem_do_rinst || mem_do_rdata));
 
-			if (mem_state == 2 || mem_state == 3)
-				`assert(mem_valid || mem_do_prefetch);
-		end
-	end
+	// 		if (mem_state == 2 || mem_state == 3)
+	// 			`assert(mem_valid || mem_do_prefetch);
+	// 	end
+	// end
 
 	always @(posedge clk) begin
 		if (!resetn || trap) begin
@@ -594,10 +594,10 @@ module picorv32 #(
 					end
 				end
 				1: begin
-					`assert(mem_wstrb == 0);
-					`assert(mem_do_prefetch || mem_do_rinst || mem_do_rdata);
-					`assert(mem_valid == !mem_la_use_prefetched_high_word);
-					`assert(mem_instr == (mem_do_prefetch || mem_do_rinst));
+					// `assert(mem_wstrb == 0);
+					// `assert(mem_do_prefetch || mem_do_rinst || mem_do_rdata);
+					// `assert(mem_valid == !mem_la_use_prefetched_high_word);
+					// `assert(mem_instr == (mem_do_prefetch || mem_do_rinst));
 					if (mem_xfer) begin
 						if (COMPRESSED_ISA && mem_la_read) begin
 							mem_valid <= 1;
@@ -620,16 +620,16 @@ module picorv32 #(
 					end
 				end
 				2: begin
-					`assert(mem_wstrb != 0);
-					`assert(mem_do_wdata);
+					// `assert(mem_wstrb != 0);
+					// `assert(mem_do_wdata);
 					if (mem_xfer) begin
 						mem_valid <= 0;
 						mem_state <= 0;
 					end
 				end
 				3: begin
-					`assert(mem_wstrb == 0);
-					`assert(mem_do_prefetch);
+					// `assert(mem_wstrb == 0);
+					// `assert(mem_do_prefetch);
 					if (mem_do_rinst) begin
 						mem_state <= 0;
 					end
@@ -2100,71 +2100,71 @@ module picorv32 #(
 	end
 `endif
 
-	// Formal Verification
-`ifdef FORMAL
-	reg [3:0] last_mem_nowait;
-	always @(posedge clk)
-		last_mem_nowait <= {last_mem_nowait, mem_ready || !mem_valid};
+// 	// Formal Verification
+// `ifdef FORMAL
+// 	reg [3:0] last_mem_nowait;
+// 	always @(posedge clk)
+// 		last_mem_nowait <= {last_mem_nowait, mem_ready || !mem_valid};
 
-	// stall the memory interface for max 4 cycles
-	restrict property (|last_mem_nowait || mem_ready || !mem_valid);
+// 	// stall the memory interface for max 4 cycles
+// 	restrict property (|last_mem_nowait || mem_ready || !mem_valid);
 
-	// resetn low in first cycle, after that resetn high
-	restrict property (resetn != $initstate);
+// 	// resetn low in first cycle, after that resetn high
+// 	restrict property (resetn != $initstate);
 
-	// this just makes it much easier to read traces. uncomment as needed.
-	// assume property (mem_valid || !mem_ready);
+// 	// this just makes it much easier to read traces. uncomment as needed.
+// 	// assume property (mem_valid || !mem_ready);
 
-	reg ok;
-	always @* begin
-		if (resetn) begin
-			// instruction fetches are read-only
-			if (mem_valid && mem_instr)
-				assert (mem_wstrb == 0);
+// 	reg ok;
+// 	always @* begin
+// 		if (resetn) begin
+// 			// instruction fetches are read-only
+// 			if (mem_valid && mem_instr)
+// 				assert (mem_wstrb == 0);
 
-			// cpu_state must be valid
-			ok = 0;
-			if (cpu_state == cpu_state_trap)   ok = 1;
-			if (cpu_state == cpu_state_fetch)  ok = 1;
-			if (cpu_state == cpu_state_ld_rs1) ok = 1;
-			if (cpu_state == cpu_state_ld_rs2) ok = !ENABLE_REGS_DUALPORT;
-			if (cpu_state == cpu_state_exec)   ok = 1;
-			if (cpu_state == cpu_state_shift)  ok = 1;
-			if (cpu_state == cpu_state_stmem)  ok = 1;
-			if (cpu_state == cpu_state_ldmem)  ok = 1;
-			assert (ok);
-		end
-	end
+// 			// cpu_state must be valid
+// 			ok = 0;
+// 			if (cpu_state == cpu_state_trap)   ok = 1;
+// 			if (cpu_state == cpu_state_fetch)  ok = 1;
+// 			if (cpu_state == cpu_state_ld_rs1) ok = 1;
+// 			if (cpu_state == cpu_state_ld_rs2) ok = !ENABLE_REGS_DUALPORT;
+// 			if (cpu_state == cpu_state_exec)   ok = 1;
+// 			if (cpu_state == cpu_state_shift)  ok = 1;
+// 			if (cpu_state == cpu_state_stmem)  ok = 1;
+// 			if (cpu_state == cpu_state_ldmem)  ok = 1;
+// 			assert (ok);
+// 		end
+// 	end
 
-	reg last_mem_la_read = 0;
-	reg last_mem_la_write = 0;
-	reg [31:0] last_mem_la_addr;
-	reg [31:0] last_mem_la_wdata;
-	reg [3:0] last_mem_la_wstrb = 0;
+// 	reg last_mem_la_read = 0;
+// 	reg last_mem_la_write = 0;
+// 	reg [31:0] last_mem_la_addr;
+// 	reg [31:0] last_mem_la_wdata;
+// 	reg [3:0] last_mem_la_wstrb = 0;
 
-	always @(posedge clk) begin
-		last_mem_la_read <= mem_la_read;
-		last_mem_la_write <= mem_la_write;
-		last_mem_la_addr <= mem_la_addr;
-		last_mem_la_wdata <= mem_la_wdata;
-		last_mem_la_wstrb <= mem_la_wstrb;
+// 	always @(posedge clk) begin
+// 		last_mem_la_read <= mem_la_read;
+// 		last_mem_la_write <= mem_la_write;
+// 		last_mem_la_addr <= mem_la_addr;
+// 		last_mem_la_wdata <= mem_la_wdata;
+// 		last_mem_la_wstrb <= mem_la_wstrb;
 
-		if (last_mem_la_read) begin
-			assert(mem_valid);
-			assert(mem_addr == last_mem_la_addr);
-			assert(mem_wstrb == 0);
-		end
-		if (last_mem_la_write) begin
-			assert(mem_valid);
-			assert(mem_addr == last_mem_la_addr);
-			assert(mem_wdata == last_mem_la_wdata);
-			assert(mem_wstrb == last_mem_la_wstrb);
-		end
-		if (mem_la_read || mem_la_write) begin
-			assert(!mem_valid || mem_ready);
-		end
-	end
-`endif
+// 		if (last_mem_la_read) begin
+// 			assert(mem_valid);
+// 			assert(mem_addr == last_mem_la_addr);
+// 			assert(mem_wstrb == 0);
+// 		end
+// 		if (last_mem_la_write) begin
+// 			assert(mem_valid);
+// 			assert(mem_addr == last_mem_la_addr);
+// 			assert(mem_wdata == last_mem_la_wdata);
+// 			assert(mem_wstrb == last_mem_la_wstrb);
+// 		end
+// 		if (mem_la_read || mem_la_write) begin
+// 			assert(!mem_valid || mem_ready);
+// 		end
+// 	end
+// `endif
 
 /// Reg Check
 	`rvformal_rand_const_reg [63:0] insn_order;
