@@ -8,7 +8,7 @@ module stall_pipe (
 );
     reg [15:0] r1, r2, r3, r4, d1, d2;
     always_comb assume (!rst_n == $initstate);
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             r1 <= 0;
             r2 <= 0;
@@ -25,8 +25,8 @@ module stall_pipe (
                 d1 <= r1 + r2;
                 d2 <= r3 + r4;
             end
+            assert (r1 + r2 == r3 + r4);
+            assert (d1 == d2);
         end
     end
-    assert property (r1 + r2 == r3 + r4);
-    assert property (d1 == d2);
 endmodule
