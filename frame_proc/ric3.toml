@@ -2,5 +2,10 @@
 version = "1.6.0"
 
 [dut]
-top = "frame_processor_dut"
+top = "frame_processor"
 files = ["frame_proc.sv"]
+reset = "!rst_n"
+
+[modeling]
+# set parser to yosys_slang or yosys
+parser = "yosys"

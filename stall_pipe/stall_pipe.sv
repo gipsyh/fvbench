@@ -4,10 +4,9 @@ module stall_pipe (
     input stall,
     input wire [15:0] a,
     input wire [15:0] b,
-    input wire [15:0] c,
+    input wire [15:0] c
 );
     reg [15:0] r1, r2, r3, r4, d1, d2;
-    always_comb assume (!rst_n == $initstate);
     always @(posedge clk) begin
         if (!rst_n) begin
             r1 <= 0;
