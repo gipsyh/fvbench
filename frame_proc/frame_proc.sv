@@ -477,7 +477,9 @@ module frame_processor (
         end
     end
 
+/// Helper Assertion Begin
 
+/// Helper Assertion End
 
 endmodule
 
