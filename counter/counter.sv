@@ -14,13 +14,9 @@ module counter #(
             count <= count + 1;
         end
 
-    always_comb assume (!rst_n == $initstate);
-    always @(posedge clk)
-        if (rst_n) begin
-            assert (count != {W{1'b1}});
-            assert (count != {(W - 1) {1'b1}});
-            assert (count != {(W - 2) {1'b1}});
-            assert (count != {(W - 3) {1'b1}});
-            assert (count != {(W - 4) {1'b1}});
-        end
+    assert property (@(posedge clk) disable iff (!rst_n) count != {W{1'b1}});
+    assert property (@(posedge clk) disable iff (!rst_n) count != {(W - 1) {1'b1}});
+    assert property (@(posedge clk) disable iff (!rst_n) count != {(W - 2) {1'b1}});
+    assert property (@(posedge clk) disable iff (!rst_n) count != {(W - 3) {1'b1}});
+    assert property (@(posedge clk) disable iff (!rst_n) count != {(W - 4) {1'b1}});
 endmodule

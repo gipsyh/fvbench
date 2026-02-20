@@ -14,23 +14,28 @@ note：什么是正确帧？1、头在帧尾前或者同时收到；2、psn相�
 
 5、请注意，该模块遵循先入的帧一定会先处理，例如：在i_valid_1入口顺序输入的帧为A->B->C->D，A与C为正确帧，B与D为错误帧，则o_valid_2接口输出A后o_valid_3接口才会输出B，接着o_valid_2接口输出C，最后o_valid_3接口输出D，o_valid_4接口的输出顺序一定为ABCD
 */
-module frame_processor (
+module frame_processor #(
+    parameter DWIDTH = 256,
+    parameter MAIN_FIFO_DEPTH = 8,
+    parameter RPT_FIFO_DEPTH = 16,
+    parameter PSN_WIDTH = 24
+) (
     input logic clk,
     input logic rst_n,
 
     // Interface 1: Input Stream
-    input  logic         i_valid_1,
-    output logic         o_ready_1,
-    input  logic [  1:0] i_frame_type,  // 0:Head, 1:Body, 2:Tail, 3:Error
-    input  logic [ 23:0] i_frame_psn,
-    input  logic [255:0] i_frame_data,
+    input  logic                 i_valid_1,
+    output logic                 o_ready_1,
+    input  logic [          1:0] i_frame_type,  // 0:Head, 1:Body, 2:Tail, 3:Error
+    input  logic [PSN_WIDTH-1:0] i_frame_psn,
+    input  logic [   DWIDTH-1:0] i_frame_data,
 
     // Interface 2: Correct Frame Output
-    output logic         o_valid_2,
-    input  logic         i_ready_2,
-    output logic [ 23:0] o_frame_psn_2,
-    output logic [  1:0] o_frame_type_2,
-    output logic [255:0] o_frame_data_2,
+    output logic                 o_valid_2,
+    input  logic                 i_ready_2,
+    output logic [PSN_WIDTH-1:0] o_frame_psn_2,
+    output logic [          1:0] o_frame_type_2,
+    output logic [   DWIDTH-1:0] o_frame_data_2,
 
     // Interface 3: Error Frame Output
     output logic         o_valid_3,
@@ -68,15 +73,12 @@ module frame_processor (
     //==========================================================================
     // Part 1: Input Validation & Pre-computation
     //==========================================================================
-    logic [ 23:0] exp_psn;
-    logic         inside_frame;
-    logic         seq_ok;
-    logic         psn_ok;
-    logic         type_ok;
-    logic         frame_is_correct;
+    logic [PSN_WIDTH-1:0] exp_psn;
+    logic                 inside_frame;
+    logic                 frame_is_correct;
 
     // Pre-calculated data to be pushed into FIFO
-    logic [255:0] w_data_pre;
+    logic [   DWIDTH-1:0] w_data_pre;
 
     // 1.1 Sequence Check (Head before Tail)
     always_ff @(posedge clk) begin
@@ -100,7 +102,7 @@ module frame_processor (
     // "每个无误帧的psn是递增+1的...若收到错误帧，则该帧不作数"
     always_ff @(posedge clk) begin
         if (!rst_n) begin
-            exp_psn <= 24'd0;
+            exp_psn <= 'd0;
         end else if (i_valid_1 && o_ready_1 && frame_is_correct) begin
             exp_psn <= exp_psn + 1'b1;
         end
@@ -120,15 +122,15 @@ module frame_processor (
     // Part 2: Main FIFO (Buffer & Order Preservation)
     //==========================================================================
     // Structure: {is_correct, type, psn, processed_data}
-    // Width: 1 + 2 + 24 + 256 = 283 bits
+    // Width: 1 + 2 + PSN_WIDTH + DWIDTH = 283 bits
+    localparam MAIN_FIFO_WIDTH = 1 + 2 + PSN_WIDTH + DWIDTH;
 
-    logic         main_fifo_wr;
-    logic         main_fifo_rd;
-    logic         main_fifo_full;
-    logic         main_fifo_empty;
-    logic [282:0] main_fifo_din;
-    logic [282:0] main_fifo_dout;
-
+    logic                       main_fifo_wr;
+    logic                       main_fifo_rd;
+    logic                       main_fifo_full;
+    logic                       main_fifo_empty;
+    logic [MAIN_FIFO_WIDTH-1:0] main_fifo_din;
+    logic [MAIN_FIFO_WIDTH-1:0] main_fifo_dout;
     // Connect Input to FIFO
     assign main_fifo_din = {frame_is_correct, i_frame_type, i_frame_psn, w_data_pre};
     assign main_fifo_wr  = i_valid_1 && !main_fifo_full;  // Simple flow control
@@ -137,8 +139,8 @@ module frame_processor (
     // Instantiate FIFO (Assuming a standard sync FIFO behavior here)
     // For this example, I will use a simple RTL model. In real chip, use IP.
     fifo_sync #(
-        .WIDTH(283),
-        .DEPTH(8)  // Depth adjustable
+        .WIDTH(MAIN_FIFO_WIDTH),
+        .DEPTH(MAIN_FIFO_DEPTH)  // Depth adjustable
     ) u_main_fifo (
         .clk  (clk),
         .rst_n(rst_n),
@@ -151,10 +153,10 @@ module frame_processor (
     );
 
     // Unpack FIFO output
-    logic         f_correct;
-    logic [  1:0] f_type;
-    logic [ 23:0] f_psn;
-    logic [255:0] f_data;
+    logic                 f_correct;
+    logic [          1:0] f_type;
+    logic [PSN_WIDTH-1:0] f_psn;
+    logic [   DWIDTH-1:0] f_data;
     assign {f_correct, f_type, f_psn, f_data} = main_fifo_dout;
 
     //==========================================================================
@@ -247,19 +249,19 @@ module frame_processor (
     //==========================================================================
     // Strategy: Push metadata to a second FIFO when IF2/IF3 finishes.
     // Structure: {psn, type}
-
-    logic        rpt_fifo_wr;
-    logic        rpt_fifo_rd;
-    logic        rpt_fifo_empty;
-    logic [25:0] rpt_fifo_din;
-    logic [25:0] rpt_fifo_dout;
+    localparam RPT_FIFO_WIDTH = 2 + PSN_WIDTH;
+    logic                      rpt_fifo_wr;
+    logic                      rpt_fifo_rd;
+    logic                      rpt_fifo_empty;
+    logic [RPT_FIFO_WIDTH-1:0] rpt_fifo_din;
+    logic [RPT_FIFO_WIDTH-1:0] rpt_fifo_dout;
 
     assign rpt_fifo_wr  = tx_done;
     assign rpt_fifo_din = {f_psn, f_type};
 
     fifo_sync #(
-        .WIDTH(26),
-        .DEPTH(4)
+        .WIDTH(RPT_FIFO_WIDTH),
+        .DEPTH(RPT_FIFO_DEPTH)
     ) u_rpt_fifo (
         .clk  (clk),
         .rst_n(rst_n),
@@ -314,15 +316,16 @@ module frame_processor (
     end
 
     assign o_valid_4      = (r_state_cur == S_OUTPUT);
-    assign o_frame_psn_4  = rpt_fifo_dout[25:2];
+    assign o_frame_psn_4  = rpt_fifo_dout[PSN_WIDTH+1:2];
     assign o_frame_type_4 = rpt_fifo_dout[1:0];
 
+    localparam TARGET_WIDTH = MAIN_FIFO_DEPTH > RPT_FIFO_DEPTH ? MAIN_FIFO_DEPTH : RPT_FIFO_DEPTH;
     //==============================================================
     // 1. 事务计数器 (保持不变)
     //==============================================================
-    logic [15:0] cnt_in;
-    logic [15:0] cnt_out_main;
-    logic [15:0] cnt_out_rpt;
+    logic [TARGET_WIDTH-1:0] cnt_in;
+    logic [TARGET_WIDTH-1:0] cnt_out_main;
+    logic [TARGET_WIDTH-1:0] cnt_out_rpt;
 
     always_ff @(posedge clk) begin
         if (!rst_n) cnt_in <= 0;
@@ -345,20 +348,21 @@ module frame_processor (
     //==============================================================
     // 2. 符号化目标 ID (保持不变，Attribute 是普通 SV 支持的)
     //==============================================================
-    (* anyconst *)logic [15:0] fv_target_id;
+    logic [TARGET_WIDTH-1:0] fv_target_id;
 
     //==============================================================
     // 3. 辅助逻辑 (保持不变)
     //==============================================================
-    logic [23:0] ref_exp_psn;
-    logic        ref_inside_frame;
-    logic        ref_is_correct;
+    logic [   PSN_WIDTH-1:0] ref_exp_psn;
+    logic                    ref_inside_frame;
+    logic                    ref_is_correct;
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             ref_inside_frame <= 1'b0;
             ref_exp_psn      <= '0;
         end else if (i_valid_1 && o_ready_1) begin
+            fv_target_id <= fv_target_id;
             if (i_frame_type == 2'd0) ref_inside_frame <= 1'b1;
             else if (i_frame_type == 2'd2) ref_inside_frame <= 1'b0;
 
@@ -368,7 +372,6 @@ module frame_processor (
         end
     end
 
-    logic seq_ok, psn_ok, type_ok;
     assign seq_ok = (i_frame_type == 2'd0) || ref_inside_frame;
     assign psn_ok = (i_frame_psn == ref_exp_psn);
     assign type_ok = (i_frame_type != 2'd3);
@@ -377,10 +380,10 @@ module frame_processor (
     //==============================================================
     // 4. 数据捕获 (保持不变)
     //==============================================================
-    logic [ 23:0] saved_psn;
-    logic [255:0] saved_expected_data;
-    logic         saved_is_correct;
-    logic         target_valid;
+    logic [PSN_WIDTH-1:0] saved_psn;
+    logic [   DWIDTH-1:0] saved_expected_data;
+    logic                 saved_is_correct;
+    logic                 target_valid;
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
@@ -407,25 +410,25 @@ module frame_processor (
             if (check_trigger_main) begin
                 // 1. 因果性检查 (Causality)
                 // 原逻辑: check_trigger_main |-> target_valid
-                a_main_no_spurious : assert (target_valid);
+                o_main_no_spurious : assert (target_valid);
 
                 // 2. 数据完整性检查 (Integrity)
                 // 只有当 target_valid 为高时才检查数据，避免 X 态传播
                 if (target_valid) begin
                     if (saved_is_correct) begin
                         // 正确帧分支：应该走 IF2
-                        a_main_path_correct : assert (tx_2_hs);
+                        o_main_path_correct : assert (tx_2_hs);
 
-                        a_main_data_correct : assert (o_frame_data_2 == saved_expected_data);
+                        o_main_data_correct : assert (o_frame_data_2 == saved_expected_data);
 
-                        a_main_psn_correct : assert (o_frame_psn_2 == saved_psn);
+                        o_main_psn_correct : assert (o_frame_psn_2 == saved_psn);
                     end else begin
                         // 错误帧分支：应该走 IF3
-                        a_main_path_error : assert (tx_3_hs);
+                        o_main_path_error : assert (tx_3_hs);
 
-                        a_main_data_error : assert (o_frame_data_3 == saved_expected_data);
+                        o_main_data_error : assert (o_frame_data_3 == saved_expected_data);
 
-                        a_main_psn_error : assert (o_frame_psn_3 == saved_psn);
+                        o_main_psn_error : assert (o_frame_psn_3 == saved_psn);
                     end
                 end
             end
@@ -441,11 +444,11 @@ module frame_processor (
         if (rst_n) begin
             if (check_trigger_rpt) begin
                 // 1. 因果性检查
-                a_rpt_no_spurious : assert (target_valid);
+                o_rpt_no_spurious : assert (target_valid);
 
                 // 2. 数据检查
                 if (target_valid) begin
-                    a_rpt_psn_check : assert (o_frame_psn_4 == saved_psn);
+                    o_rpt_psn_check : assert (o_frame_psn_4 == saved_psn);
                 end
             end
         end
@@ -455,31 +458,28 @@ module frame_processor (
     // 7. Liveness 替代方案：看门狗定时器 (Watchdog Timer)
     //    原理：如果不使用 s_eventually，必须定义一个"最大超时时间"
     //==============================================================
-    localparam TIMEOUT_LIMIT = 1000;  // 根据实际处理延时调整
+    // localparam TIMEOUT_LIMIT = 1000;  // 根据实际处理延时调整
 
-    integer watchdog_main;
-    integer watchdog_rpt;
+    // integer watchdog_main;
+    // integer watchdog_rpt;
 
-    // Main 接口活性检查
-    always_ff @(posedge clk) begin
-        if (!rst_n) begin
-            watchdog_main <= 0;
-        end else begin
-            // 如果目标已捕获，但主接口还没输出这个目标，则开始计时
-            if (target_valid && (cnt_out_main <= fv_target_id)) begin
-                watchdog_main <= watchdog_main + 1;
-                // 检查超时
-                a_main_timeout : assert (watchdog_main < TIMEOUT_LIMIT);
-            end else begin
-                // 正常输出后或等待捕获前，清零计数器
-                watchdog_main <= 0;
-            end
-        end
-    end
+    // // Main 接口活性检查
+    // always_ff @(posedge clk) begin
+    //     if (!rst_n) begin
+    //         watchdog_main <= 0;
+    //     end else begin
+    //         // 如果目标已捕获，但主接口还没输出这个目标，则开始计时
+    //         if (target_valid && (cnt_out_main <= fv_target_id)) begin
+    //             watchdog_main <= watchdog_main + 1;
+    //             // 检查超时
+    //             o_main_timeout : assert (watchdog_main < TIMEOUT_LIMIT);
+    //         end else begin
+    //             // 正常输出后或等待捕获前，清零计数器
+    //             watchdog_main <= 0;
+    //         end
+    //     end
+    // end
 
-/// Helper Assertion Begin
-
-/// Helper Assertion End
 
 endmodule
 
