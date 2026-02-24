@@ -1,6 +1,4 @@
-[ric3]
-version = "1.6.0"
-
 [dut]
 top = "xor_flip"
 files = ["xor_flip.sv"]
+reset = "!rst_n"

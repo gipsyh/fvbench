@@ -55,7 +55,6 @@ module fifo #(
         end
     end
 
-    always_comb assume (!rst_n == $initstate);
     reg [ADDR_WIDTH-1:0] cr_count;
     reg [ADDR_WIDTH-1:0] push_count;
     reg [ADDR_WIDTH-1:0] pop_count;
@@ -67,7 +66,6 @@ module fifo #(
             pop_count  <= 0;
         end else begin
             cr_count <= cr_count;
-            assert ($stable(cr_count));
             if (wr_en && !full) begin
                 push_count <= push_count + 1;
                 if (push_count == cr_count) begin

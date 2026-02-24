@@ -39,7 +39,4 @@ module multiplier #(
             assert (ma == mb);
         end
     end
-
-    always_comb assume (!rst_n == $initstate);
-
 endmodule

@@ -15,7 +15,6 @@ module xor_flip (
     end
 
 
-    always_comb assume (!rst_n == $initstate);
     always_comb assume (flip_i != flip_j);
     always @(posedge clk) begin
         if (rst_n) begin
