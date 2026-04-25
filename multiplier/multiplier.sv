@@ -1,7 +1,6 @@
-
 module multiplier #(
-    parameter WL = 32,
-    parameter WS = 16
+    parameter WL = 16,
+    parameter WS = WL / 2
 ) (
     input clk,
     input rst_n,
