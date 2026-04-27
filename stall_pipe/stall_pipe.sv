@@ -9,7 +9,6 @@ module pipe #(
     c
 );
     reg [W-1:0] r1, r2, r3, r4, d1, d2;
-    initial r1 = 0;
     always @(posedge clk) begin
         if (!rst_n) begin
             {r1, r2, r3, r4, d1, d2} <= 0;
@@ -22,8 +21,9 @@ module pipe #(
                 d1 <= r1 + r2;
                 d2 <= r3 + r4;
             end
-            // h_1: assert (r1 + r2 == r3 + r4);
-            o_1 : assert (d1 == d2);
         end
     end
+
+    assert property (@(posedge clk) disable iff (!rst_n) r1 + r2 == r3 + r4);
+    assert property (@(posedge clk) disable iff (!rst_n) d1 == d2);
 endmodule
