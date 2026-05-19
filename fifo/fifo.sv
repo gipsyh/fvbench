@@ -1,6 +1,7 @@
 module fifo #(
     parameter DATA_WIDTH = 8,
-    parameter DEPTH = 16
+    parameter DEPTH = 16,
+    localparam ADDR_WIDTH = $clog2(DEPTH)
 ) (
     input wire clk,
     input wire rst_n,
@@ -11,9 +12,6 @@ module fifo #(
     output wire full,
     output wire empty
 );
-
-    localparam ADDR_WIDTH = $clog2(DEPTH);
-
     reg [DATA_WIDTH-1:0] mem[0:DEPTH-1];
     reg [ADDR_WIDTH-1:0] w_ptr;
     reg [ADDR_WIDTH-1:0] r_ptr;
@@ -55,6 +53,23 @@ module fifo #(
         end
     end
 
+endmodule
+
+module fifo_check #(
+    parameter DATA_WIDTH = 8,
+    parameter DEPTH = 16,
+    localparam ADDR_WIDTH = $clog2(DEPTH)
+) (
+    input wire clk,
+    input wire rst_n,
+    input wire wr_en,
+    input wire [DATA_WIDTH-1:0] wdata,
+    input wire rd_en,
+    input wire full,
+    input wire empty,
+    input wire [DATA_WIDTH-1:0] mem[0:DEPTH-1]
+);
+
     reg [ADDR_WIDTH-1:0] cr_count;
     reg [ADDR_WIDTH-1:0] push_count;
     reg [ADDR_WIDTH-1:0] pop_count;
@@ -75,9 +90,23 @@ module fifo #(
             if (rd_en && !empty) begin
                 pop_count <= pop_count + 1;
                 if (pop_count == cr_count) begin
-                    assert (check_data == mem[pop_count]);
+                    P0 : assert (check_data == mem[pop_count]);
                 end
             end
         end
     end
 endmodule
+
+bind fifo fifo_check #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .DEPTH(DEPTH)
+) fifo_check_i (
+    .clk  (clk),
+    .rst_n(rst_n),
+    .wr_en(wr_en),
+    .wdata(wdata),
+    .rd_en(rd_en),
+    .full (full),
+    .empty(empty),
+    .mem  (mem)
+);
