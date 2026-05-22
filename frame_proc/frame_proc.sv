@@ -138,17 +138,17 @@ module frame_processor #(
 
     // Instantiate FIFO (Assuming a standard sync FIFO behavior here)
     // For this example, I will use a simple RTL model. In real chip, use IP.
-    fifo_sync #(
-        .WIDTH(MAIN_FIFO_WIDTH),
+    fifo #(
+        .DATA_WIDTH(MAIN_FIFO_WIDTH),
         .DEPTH(MAIN_FIFO_DEPTH)  // Depth adjustable
     ) u_main_fifo (
         .clk  (clk),
         .rst_n(rst_n),
         .wr_en(main_fifo_wr),
-        .din  (main_fifo_din),
-        .full (main_fifo_full),
+        .wdata(main_fifo_din),
         .rd_en(main_fifo_rd),
-        .dout (main_fifo_dout),
+        .rdata(main_fifo_dout),
+        .full (main_fifo_full),
         .empty(main_fifo_empty)
     );
 
@@ -259,17 +259,17 @@ module frame_processor #(
     assign rpt_fifo_wr  = tx_done;
     assign rpt_fifo_din = {f_psn, f_type};
 
-    fifo_sync #(
-        .WIDTH(RPT_FIFO_WIDTH),
+    fifo #(
+        .DATA_WIDTH(RPT_FIFO_WIDTH),
         .DEPTH(RPT_FIFO_DEPTH)
     ) u_rpt_fifo (
         .clk  (clk),
         .rst_n(rst_n),
         .wr_en(rpt_fifo_wr),
-        .din  (rpt_fifo_din),
-        .full (rpt_fifo_full),
+        .wdata(rpt_fifo_din),
         .rd_en(rpt_fifo_rd),
-        .dout (rpt_fifo_dout),
+        .rdata(rpt_fifo_dout),
+        .full (rpt_fifo_full),
         .empty(rpt_fifo_empty)
     );
 
@@ -480,56 +480,5 @@ module frame_processor #(
     //     end
     // end
 
-
-endmodule
-
-//==============================================================================
-// Helper Module: Simple Synchronous FIFO
-//==============================================================================
-module fifo_sync #(
-    parameter WIDTH = 8,
-    parameter DEPTH = 4
-) (
-    input  logic             clk,
-    input  logic             rst_n,
-    input  logic             wr_en,
-    input  logic [WIDTH-1:0] din,
-    output logic             full,
-    input  logic             rd_en,
-    output logic [WIDTH-1:0] dout,
-    output logic             empty
-);
-    localparam PTR_WIDTH = $clog2(DEPTH);
-
-    logic [WIDTH-1:0] mem[DEPTH-1:0];
-    logic [PTR_WIDTH:0] count;
-    logic [PTR_WIDTH-1:0] wr_ptr, rd_ptr;
-
-    always_ff @(posedge clk) begin
-        if (!rst_n) begin
-            count  <= 0;
-            wr_ptr <= 0;
-            rd_ptr <= 0;
-        end else begin
-            if (wr_en && !full) begin
-                mem[wr_ptr] <= din;
-                wr_ptr <= wr_ptr + 1'b1;
-                if (!rd_en) count <= count + 1'b1;
-            end
-
-            if (rd_en && !empty) begin
-                rd_ptr <= rd_ptr + 1'b1;
-                if (!wr_en) count <= count - 1'b1;
-            end
-
-            if (wr_en && rd_en && !full && !empty) begin
-                // Count stays same
-            end
-        end
-    end
-
-    assign full  = (count == DEPTH);
-    assign empty = (count == 0);
-    assign dout  = mem[rd_ptr];
 
 endmodule

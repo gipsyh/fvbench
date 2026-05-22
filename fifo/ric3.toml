@@ -1,4 +1,4 @@
 [dut]
 top = "fifo"
-files = ["fifo.sv"]
+files = ["fifo.sv", "prop.sv"]
 reset = "!rst_n"

@@ -1,4 +1,4 @@
 [dut]
 top = "frame_processor"
-files = ["frame_proc.sv"]
+files = ["frame_proc.sv", "../fifo/fifo.sv"]
 reset = "!rst_n"
