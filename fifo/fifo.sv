@@ -61,13 +61,7 @@ module fifo_check #(
     localparam ADDR_WIDTH = $clog2(DEPTH)
 ) (
     input wire clk,
-    input wire rst_n,
-    input wire wr_en,
-    input wire [DATA_WIDTH-1:0] wdata,
-    input wire rd_en,
-    input wire full,
-    input wire empty,
-    input wire [DATA_WIDTH-1:0] mem[0:DEPTH-1]
+    input wire rst_n
 );
 
     reg [ADDR_WIDTH-1:0] cr_count;
@@ -81,16 +75,16 @@ module fifo_check #(
             pop_count  <= 0;
         end else begin
             cr_count <= cr_count;
-            if (wr_en && !full) begin
+            if (fifo.wr_en && !fifo.full) begin
                 push_count <= push_count + 1;
                 if (push_count == cr_count) begin
-                    check_data <= wdata;
+                    check_data <= fifo.wdata;
                 end
             end
-            if (rd_en && !empty) begin
+            if (fifo.rd_en && !fifo.empty) begin
                 pop_count <= pop_count + 1;
                 if (pop_count == cr_count) begin
-                    P0 : assert (check_data == mem[pop_count]);
+                    P0 : assert (check_data == fifo.mem[pop_count]);
                 end
             end
         end
@@ -102,11 +96,5 @@ bind fifo fifo_check #(
     .DEPTH(DEPTH)
 ) fifo_check_i (
     .clk  (clk),
-    .rst_n(rst_n),
-    .wr_en(wr_en),
-    .wdata(wdata),
-    .rd_en(rd_en),
-    .full (full),
-    .empty(empty),
-    .mem  (mem)
+    .rst_n(rst_n)
 );
