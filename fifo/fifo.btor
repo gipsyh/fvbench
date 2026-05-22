@@ -14,357 +14,239 @@
 13 or 1 8 12
 14 constraint 13
 15 state 5 fifo_check_i.check_data
-16 state 5
-17 state 5
-18 state 5
-19 state 5
-20 sort bitvec 4
-21 state 20 fifo_check_i.pop_count
-22 sort bitvec 5
-23 uext 22 21 1
-24 not 22 23
-25 slice 1 24 0 0
-26 ite 5 25 19 18
-27 state 5
-28 state 5
-29 ite 5 25 28 27
-30 slice 1 24 1 1
-31 ite 5 30 29 26
-32 state 5
-33 state 5
-34 ite 5 25 33 32
-35 state 5
-36 state 5
-37 ite 5 25 36 35
-38 ite 5 30 37 34
-39 slice 1 24 2 2
-40 ite 5 39 38 31
-41 state 5
-42 state 5
-43 ite 5 25 42 41
-44 state 5
-45 state 5
-46 ite 5 25 45 44
-47 ite 5 30 46 43
-48 state 5
-49 state 5
-50 ite 5 25 49 48
-51 state 5
-52 state 5
-53 ite 5 25 52 51
-54 ite 5 30 53 50
-55 ite 5 39 54 47
-56 slice 1 24 3 3
-57 ite 5 56 55 40
-58 const 22 10000
-59 sgte 1 24 58
-60 ite 5 59 57 17
-61 slice 1 24 4 4
-62 ite 5 61 60 16
-63 eq 1 15 62
-64 const 1 0
-65 state 20 fifo_check_i.cr_count
-66 eq 1 21 65
-67 ite 1 66 9 64
-68 const 22 00000
-69 state 22 _witness_.anyinit_driver_count
-70 ite 22 4 69 68
-71 redor 1 70
-72 not 1 71
-73 not 1 72
-74 and 1 3 73
-75 ite 1 74 67 64
-76 ite 1 4 75 64
-77 not 1 63
-78 and 1 76 77
-79 bad 78 fifo_check_i.P0 ; fifo.sv:93.21-93.64
-80 not 1 2
-81 not 1 9
-82 or 1 80 81
-83 constraint 82
-84 state 1
-85 init 1 84 64
-86 state 1
-87 init 1 86 64
-88 or 1 84 86
-89 not 1 88
-90 or 1 4 89
-91 constraint 90
-92 state 5
-93 uext 5 92 0 _witness_.anyseq_auto_setundef_cc_550_execute_143
-94 uext 5 16 0 _witness_.anyseq_auto_setundef_cc_550_execute_147
-95 state 20 _witness_.anyinit_driver_r_ptr
-96 state 5 _witness_.anyinit_driver_rdata
-97 state 20 _witness_.anyinit_driver_w_ptr
-98 state 5
-99 uext 5 98 0 _witness_.anyseq_auto_setundef_cc_550_execute_141
-100 uext 5 17 0 _witness_.anyseq_auto_setundef_cc_550_execute_145
-101 uext 22 70 0 count ; fifo.sv:18.24
-102 uext 1 72 0 empty ; fifo.sv:13.17
-103 uext 1 2 0 fifo_check_i.clk ; fifo.sv:63.16
-104 uext 1 72 0 fifo_check_i.empty ; fifo.sv:69.16
-105 eq 1 70 58
-106 uext 1 105 0 fifo_check_i.full ; fifo.sv:68.16
-107 sort bitvec 128
-108 sort bitvec 16
-109 concat 108 19 18
-110 sort bitvec 24
-111 concat 110 27 109
-112 sort bitvec 32
-113 concat 112 28 111
-114 sort bitvec 40
-115 concat 114 32 113
-116 sort bitvec 48
-117 concat 116 33 115
-118 sort bitvec 56
-119 concat 118 35 117
-120 sort bitvec 64
-121 concat 120 36 119
-122 sort bitvec 72
-123 concat 122 41 121
-124 sort bitvec 80
-125 concat 124 42 123
-126 sort bitvec 88
-127 concat 126 44 125
-128 sort bitvec 96
-129 concat 128 45 127
-130 sort bitvec 104
-131 concat 130 48 129
-132 sort bitvec 112
-133 concat 132 49 131
-134 sort bitvec 120
-135 concat 134 51 133
-136 concat 107 52 135
-137 uext 107 136 0 fifo_check_i.mem ; fifo.sv:70.33
-138 state 20 fifo_check_i.push_count
-139 uext 1 3 0 fifo_check_i.rd_en ; fifo.sv:67.16
-140 uext 1 4 0 fifo_check_i.rst_n ; fifo.sv:64.16
-141 uext 5 6 0 fifo_check_i.wdata ; fifo.sv:66.33
-142 uext 1 7 0 fifo_check_i.wr_en ; fifo.sv:65.16
-143 uext 1 105 0 full ; fifo.sv:12.17
-144 uext 107 136 0 mem ; fifo.sv:15.26
-145 const 20 0000
-146 ite 20 4 95 145
-147 uext 20 146 0 r_ptr ; fifo.sv:17.26
-148 const 5 00000000
-149 ite 5 4 96 148
-150 uext 5 149 0 rdata ; fifo.sv:11.33
-151 ite 20 4 97 145
-152 uext 20 151 0 w_ptr ; fifo.sv:16.26
-153 next 1 10 64
-154 eq 1 138 65
-155 ite 5 154 6 15
-156 not 1 105
-157 and 1 7 156
-158 ite 5 157 155 15
-159 ite 5 4 158 15
-160 next 5 15 159
-161 const 5 11111111
-162 uext 22 151 1
-163 not 22 162
-164 sgte 1 163 58
-165 sext 22 64 4
-166 slt 1 163 165
-167 and 1 164 166
-168 ite 5 167 161 148
-169 slice 20 163 3 0
-170 eq 1 169 145
-171 ite 5 170 168 148
-172 const 20 0001
-173 eq 1 169 172
-174 ite 5 173 168 148
-175 const 20 0010
-176 eq 1 169 175
-177 ite 5 176 168 148
-178 const 20 0011
-179 eq 1 169 178
-180 ite 5 179 168 148
-181 const 20 0100
-182 eq 1 169 181
-183 ite 5 182 168 148
-184 const 20 0101
-185 eq 1 169 184
-186 ite 5 185 168 148
-187 const 20 0110
-188 eq 1 169 187
-189 ite 5 188 168 148
-190 const 20 0111
-191 eq 1 169 190
-192 ite 5 191 168 148
-193 const 20 1000
-194 eq 1 169 193
-195 ite 5 194 168 148
-196 const 20 1001
-197 eq 1 169 196
-198 ite 5 197 168 148
-199 const 20 1010
-200 eq 1 169 199
-201 ite 5 200 168 148
-202 const 20 1011
-203 eq 1 169 202
-204 ite 5 203 168 148
-205 const 20 1100
-206 eq 1 169 205
-207 ite 5 206 168 148
-208 const 20 1101
-209 eq 1 169 208
-210 ite 5 209 168 148
-211 const 20 1110
-212 eq 1 169 211
-213 ite 5 212 168 148
-214 const 20 1111
-215 eq 1 169 214
-216 ite 5 215 168 148
-217 concat 108 174 171
-218 concat 110 177 217
-219 concat 112 180 218
-220 concat 114 183 219
-221 concat 116 186 220
-222 concat 118 189 221
-223 concat 120 192 222
-224 concat 122 195 223
-225 concat 124 198 224
-226 concat 126 201 225
-227 concat 128 204 226
-228 concat 130 207 227
-229 concat 132 210 228
-230 concat 134 213 229
-231 concat 107 216 230
-232 not 107 231
-233 and 107 232 136
-234 concat 108 6 6
-235 concat 110 6 234
-236 concat 112 6 235
-237 concat 114 6 236
-238 concat 116 6 237
-239 concat 118 6 238
-240 concat 120 6 239
-241 concat 122 6 240
-242 concat 124 6 241
-243 concat 126 6 242
-244 concat 128 6 243
-245 concat 130 6 244
-246 concat 132 6 245
-247 concat 134 6 246
-248 concat 107 6 247
-249 and 107 231 248
-250 or 107 233 249
-251 ite 107 157 250 136
-252 slice 5 251 7 0
-253 ite 5 4 252 18
-254 next 5 18 253
-255 slice 5 251 15 8
-256 ite 5 4 255 19
-257 next 5 19 256
-258 uext 20 9 3
-259 add 20 21 258
-260 ite 20 74 259 21
-261 ite 20 4 260 145
-262 next 20 21 261
-263 slice 5 251 23 16
-264 ite 5 4 263 27
-265 next 5 27 264
-266 slice 5 251 31 24
-267 ite 5 4 266 28
-268 next 5 28 267
-269 slice 5 251 39 32
-270 ite 5 4 269 32
-271 next 5 32 270
-272 slice 5 251 47 40
-273 ite 5 4 272 33
-274 next 5 33 273
-275 slice 5 251 55 48
-276 ite 5 4 275 35
-277 next 5 35 276
-278 slice 5 251 63 56
-279 ite 5 4 278 36
-280 next 5 36 279
-281 slice 5 251 71 64
-282 ite 5 4 281 41
-283 next 5 41 282
-284 slice 5 251 79 72
-285 ite 5 4 284 42
-286 next 5 42 285
-287 slice 5 251 87 80
-288 ite 5 4 287 44
-289 next 5 44 288
-290 slice 5 251 95 88
-291 ite 5 4 290 45
-292 next 5 45 291
-293 slice 5 251 103 96
-294 ite 5 4 293 48
-295 next 5 48 294
-296 slice 5 251 111 104
-297 ite 5 4 296 49
-298 next 5 49 297
-299 slice 5 251 119 112
-300 ite 5 4 299 51
-301 next 5 51 300
-302 slice 5 251 127 120
-303 ite 5 4 302 52
-304 next 5 52 303
-305 next 20 65 65
-306 uext 22 9 4
-307 sub 22 70 306
-308 sort bitvec 2
-309 concat 308 157 74
-310 uext 308 9 1
-311 eq 1 309 310
-312 ite 22 311 307 70
-313 uext 22 9 4
-314 add 22 70 313
-315 const 308 10
-316 eq 1 309 315
-317 ite 22 316 314 312
-318 ite 22 4 317 68
-319 next 22 69 318
-320 next 1 84 88
-321 next 1 86 10
-322 uext 20 9 3
-323 add 20 146 322
-324 eq 1 146 214
-325 ite 20 324 145 323
-326 ite 20 74 325 146
-327 ite 20 4 326 145
-328 next 20 95 327
-329 uext 22 146 1
-330 not 22 329
-331 slice 1 330 0 0
-332 ite 5 331 19 18
-333 ite 5 331 28 27
-334 slice 1 330 1 1
-335 ite 5 334 333 332
-336 ite 5 331 33 32
-337 ite 5 331 36 35
-338 ite 5 334 337 336
-339 slice 1 330 2 2
-340 ite 5 339 338 335
-341 ite 5 331 42 41
-342 ite 5 331 45 44
-343 ite 5 334 342 341
-344 ite 5 331 49 48
-345 ite 5 331 52 51
-346 ite 5 334 345 344
-347 ite 5 339 346 343
-348 slice 1 330 3 3
-349 ite 5 348 347 340
-350 sgte 1 330 58
-351 ite 5 350 349 98
-352 slice 1 330 4 4
-353 ite 5 352 351 92
-354 ite 5 74 353 149
-355 ite 5 4 354 148
-356 next 5 96 355
-357 uext 20 9 3
-358 add 20 151 357
-359 eq 1 151 214
-360 ite 20 359 145 358
-361 ite 20 157 360 151
-362 ite 20 4 361 145
-363 next 20 97 362
-364 uext 20 9 3
-365 add 20 138 364
-366 ite 20 157 365 138
-367 ite 20 4 366 145
-368 next 20 138 367
+16 state 5 mem[0]
+17 state 5 mem[1]
+18 sort bitvec 4
+19 state 18 fifo_check_i.pop_count
+20 slice 1 19 0 0
+21 ite 5 20 17 16
+22 state 5 mem[2]
+23 state 5 mem[3]
+24 ite 5 20 23 22
+25 slice 1 19 1 1
+26 ite 5 25 24 21
+27 state 5 mem[4]
+28 state 5 mem[5]
+29 ite 5 20 28 27
+30 state 5 mem[6]
+31 state 5 mem[7]
+32 ite 5 20 31 30
+33 ite 5 25 32 29
+34 slice 1 19 2 2
+35 ite 5 34 33 26
+36 state 5 mem[8]
+37 state 5 mem[9]
+38 ite 5 20 37 36
+39 state 5 mem[10]
+40 state 5 mem[11]
+41 ite 5 20 40 39
+42 ite 5 25 41 38
+43 state 5 mem[12]
+44 state 5 mem[13]
+45 ite 5 20 44 43
+46 state 5 mem[14]
+47 state 5 mem[15]
+48 ite 5 20 47 46
+49 ite 5 25 48 45
+50 ite 5 34 49 42
+51 slice 1 19 3 3
+52 ite 5 51 50 35
+53 eq 1 15 52
+54 const 1 0
+55 state 18 fifo_check_i.cr_count
+56 eq 1 19 55
+57 ite 1 56 9 54
+58 sort bitvec 5
+59 const 58 00000
+60 state 58 _witness_.anyinit_driver_count
+61 ite 58 4 60 59
+62 redor 1 61
+63 not 1 62
+64 not 1 63
+65 and 1 3 64
+66 ite 1 65 57 54
+67 ite 1 4 66 54
+68 not 1 53
+69 and 1 67 68
+70 bad 69 fifo_check_i.P0 ; fifo.sv:86.21-86.69
+71 not 1 2
+72 not 1 9
+73 or 1 71 72
+74 constraint 73
+75 state 1
+76 init 1 75 54
+77 state 1
+78 init 1 77 54
+79 or 1 75 77
+80 not 1 79
+81 or 1 4 80
+82 constraint 81
+83 state 18 _witness_.anyinit_driver_r_ptr
+84 state 18 _witness_.anyinit_driver_w_ptr
+85 uext 58 61 0 count ; fifo.sv:18.24
+86 uext 1 63 0 empty ; fifo.sv:13.17
+87 uext 1 2 0 fifo_check_i.clk ; fifo.sv:62.16
+88 state 18 fifo_check_i.push_count
+89 uext 1 4 0 fifo_check_i.rst_n ; fifo.sv:63.16
+90 const 58 10000
+91 eq 1 61 90
+92 uext 1 91 0 full ; fifo.sv:12.17
+93 const 18 0000
+94 ite 18 4 83 93
+95 uext 18 94 0 r_ptr ; fifo.sv:17.26
+96 slice 1 94 0 0
+97 ite 5 96 17 16
+98 ite 5 96 23 22
+99 slice 1 94 1 1
+100 ite 5 99 98 97
+101 ite 5 96 28 27
+102 ite 5 96 31 30
+103 ite 5 99 102 101
+104 slice 1 94 2 2
+105 ite 5 104 103 100
+106 ite 5 96 37 36
+107 ite 5 96 40 39
+108 ite 5 99 107 106
+109 ite 5 96 44 43
+110 ite 5 96 47 46
+111 ite 5 99 110 109
+112 ite 5 104 111 108
+113 slice 1 94 3 3
+114 ite 5 113 112 105
+115 uext 5 114 0 rdata ; fifo.sv:11.34
+116 ite 18 4 84 93
+117 uext 18 116 0 w_ptr ; fifo.sv:16.26
+118 next 1 10 54
+119 eq 1 88 55
+120 ite 5 119 6 15
+121 not 1 91
+122 and 1 7 121
+123 ite 5 122 120 15
+124 ite 5 4 123 15
+125 next 5 15 124
+126 slice 1 116 0 0
+127 not 1 126
+128 slice 1 116 1 1
+129 not 1 128
+130 and 1 127 129
+131 slice 1 116 2 2
+132 not 1 131
+133 slice 1 116 3 3
+134 not 1 133
+135 and 1 132 134
+136 and 1 130 135
+137 ite 1 122 9 54
+138 and 1 137 4
+139 ite 1 138 9 54
+140 and 1 136 139
+141 ite 5 140 6 16
+142 next 5 16 141
+143 and 1 126 129
+144 and 1 143 135
+145 and 1 144 139
+146 ite 5 145 6 17
+147 next 5 17 146
+148 uext 18 9 3
+149 add 18 19 148
+150 ite 18 65 149 19
+151 ite 18 4 150 93
+152 next 18 19 151
+153 and 1 127 128
+154 and 1 153 135
+155 and 1 154 139
+156 ite 5 155 6 22
+157 next 5 22 156
+158 and 1 126 128
+159 and 1 158 135
+160 and 1 159 139
+161 ite 5 160 6 23
+162 next 5 23 161
+163 and 1 131 134
+164 and 1 130 163
+165 and 1 164 139
+166 ite 5 165 6 27
+167 next 5 27 166
+168 and 1 143 163
+169 and 1 168 139
+170 ite 5 169 6 28
+171 next 5 28 170
+172 and 1 153 163
+173 and 1 172 139
+174 ite 5 173 6 30
+175 next 5 30 174
+176 and 1 158 163
+177 and 1 176 139
+178 ite 5 177 6 31
+179 next 5 31 178
+180 and 1 132 133
+181 and 1 130 180
+182 and 1 181 139
+183 ite 5 182 6 36
+184 next 5 36 183
+185 and 1 143 180
+186 and 1 185 139
+187 ite 5 186 6 37
+188 next 5 37 187
+189 and 1 153 180
+190 and 1 189 139
+191 ite 5 190 6 39
+192 next 5 39 191
+193 and 1 158 180
+194 and 1 193 139
+195 ite 5 194 6 40
+196 next 5 40 195
+197 and 1 131 133
+198 and 1 130 197
+199 and 1 198 139
+200 ite 5 199 6 43
+201 next 5 43 200
+202 and 1 143 197
+203 and 1 202 139
+204 ite 5 203 6 44
+205 next 5 44 204
+206 and 1 153 197
+207 and 1 206 139
+208 ite 5 207 6 46
+209 next 5 46 208
+210 and 1 158 197
+211 and 1 210 139
+212 ite 5 211 6 47
+213 next 5 47 212
+214 next 18 55 55
+215 uext 58 9 4
+216 sub 58 61 215
+217 sort bitvec 2
+218 concat 217 122 65
+219 uext 217 9 1
+220 eq 1 218 219
+221 ite 58 220 216 61
+222 uext 58 9 4
+223 add 58 61 222
+224 const 217 10
+225 eq 1 218 224
+226 ite 58 225 223 221
+227 ite 58 4 226 59
+228 next 58 60 227
+229 next 1 75 79
+230 next 1 77 10
+231 uext 18 9 3
+232 add 18 94 231
+233 const 18 1111
+234 eq 1 94 233
+235 ite 18 234 93 232
+236 ite 18 65 235 94
+237 ite 18 4 236 93
+238 next 18 83 237
+239 uext 18 9 3
+240 add 18 116 239
+241 eq 1 116 233
+242 ite 18 241 93 240
+243 ite 18 122 242 116
+244 ite 18 4 243 93
+245 next 18 84 244
+246 uext 18 9 3
+247 add 18 88 246
+248 ite 18 122 247 88
+249 ite 18 4 248 93
+250 next 18 88 249
 ; end of yosys output

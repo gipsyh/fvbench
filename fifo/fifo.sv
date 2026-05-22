@@ -8,7 +8,7 @@ module fifo #(
     input wire wr_en,
     input wire [DATA_WIDTH-1:0] wdata,
     input wire rd_en,
-    output reg [DATA_WIDTH-1:0] rdata,
+    output wire [DATA_WIDTH-1:0] rdata,
     output wire full,
     output wire empty
 );
@@ -19,6 +19,7 @@ module fifo #(
 
     assign full  = (count == DEPTH);
     assign empty = (count == 0);
+    assign rdata = mem[r_ptr];
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -32,9 +33,7 @@ module fifo #(
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             r_ptr <= 0;
-            rdata <= 0;
         end else if (rd_en && !empty) begin
-            rdata <= mem[r_ptr];
             r_ptr <= (r_ptr == DEPTH - 1) ? 0 : r_ptr + 1;
         end
     end
