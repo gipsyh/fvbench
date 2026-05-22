@@ -14,7 +14,7 @@ note：什么是正确帧？1、头在帧尾前或者同时收到；2、psn相�
 
 5、请注意，该模块遵循先入的帧一定会先处理，例如：在i_valid_1入口顺序输入的帧为A->B->C->D，A与C为正确帧，B与D为错误帧，则o_valid_2接口输出A后o_valid_3接口才会输出B，接着o_valid_2接口输出C，最后o_valid_3接口输出D，o_valid_4接口的输出顺序一定为ABCD
 */
-module frame_processor #(
+module frame_proc #(
     parameter DWIDTH = 256,
     parameter MAIN_FIFO_DEPTH = 8,
     parameter RPT_FIFO_DEPTH = 16,
