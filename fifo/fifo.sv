@@ -21,7 +21,7 @@ module fifo #(
     assign empty = (count == 0);
     assign rdata = mem[r_ptr];
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             w_ptr <= 0;
         end else if (wr_en && !full) begin
@@ -30,7 +30,7 @@ module fifo #(
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             r_ptr <= 0;
         end else if (rd_en && !empty) begin
@@ -38,7 +38,7 @@ module fifo #(
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             count <= 0;
         end else begin

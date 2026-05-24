@@ -9,7 +9,7 @@ module priority_enc #(
     output reg [$clog2(N)-1:0] idx,
     output reg         valid
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             idx   <= '0;
             valid <= 1'b0;
@@ -25,7 +25,7 @@ module priority_enc #(
     // --- Formal Properties ---
 
     reg [N-1:0] req_d;
-    always @(posedge clk or negedge rst_n)
+    always @(posedge clk)
         if (!rst_n) req_d <= '0;
         else        req_d <= req;
 

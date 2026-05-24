@@ -10,7 +10,7 @@ module arbiter #(
 );
     reg [$clog2(N)-1:0] last;
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             grant <= '0;
             last  <= '0;
@@ -46,7 +46,7 @@ module arbiter #(
 
     // P3: fairness — track starvation for req[0]
     reg [3:0] wait_cnt;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) wait_cnt <= '0;
         else if (req[0] && !grant[0]) wait_cnt <= wait_cnt + 1;
         else wait_cnt <= '0;

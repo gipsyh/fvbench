@@ -8,7 +8,7 @@ module onehot_fsm #(
     input      [2:0] cmd,
     output reg [N-1:0] state
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             state    <= {{(N-1){1'b0}}, 1'b1};  // state[0] = 1
         end else begin
@@ -34,7 +34,7 @@ module onehot_fsm #(
 
     // P2: state[5] can only come from state[4]
     reg [N-1:0] prev;
-    always @(posedge clk or negedge rst_n)
+    always @(posedge clk)
         if (!rst_n) prev <= {{(N-1){1'b0}}, 1'b1};
         else        prev <= state;
 

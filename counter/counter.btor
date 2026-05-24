@@ -10,65 +10,63 @@
 9 or 1 4 8
 10 constraint 9
 11 sort bitvec 10
-12 const 11 0000000000
-13 state 11 _witness_.anyinit_driver_count
-14 ite 11 3 13 12
-15 sort bitvec 6
-16 const 15 111111
-17 uext 11 16 4
-18 neq 1 14 17
-19 const 1 0
-20 ite 1 3 5 19
-21 not 1 18
-22 and 1 20 21
-23 bad 22 P4 ; counter.sv:25.5-26.85
-24 const 11 1111111111
-25 neq 1 14 24
-26 not 1 25
-27 and 1 20 26
-28 bad 27 P0 ; counter.sv:17.5-18.78
-29 state 1
-30 init 1 29 19
-31 state 1
-32 init 1 31 19
-33 or 1 29 31
-34 not 1 33
-35 or 1 3 34
-36 constraint 35
-37 not 1 2
-38 not 1 5
-39 or 1 37 38
-40 constraint 39
-41 sort bitvec 9
-42 const 41 111111111
-43 uext 11 42 1
-44 neq 1 14 43
-45 not 1 44
-46 and 1 20 45
-47 bad 46 P1 ; counter.sv:19.5-20.85
-48 sort bitvec 8
-49 const 48 11111111
-50 uext 11 49 2
-51 neq 1 14 50
-52 not 1 51
-53 and 1 20 52
-54 bad 53 P2 ; counter.sv:21.5-22.85
-55 sort bitvec 7
-56 const 55 1111111
-57 uext 11 56 3
-58 neq 1 14 57
-59 not 1 58
-60 and 1 20 59
-61 bad 60 P3 ; counter.sv:23.5-24.85
-62 uext 11 14 0 count ; counter.sv:7.17
-63 next 1 6 19
-64 uext 11 5 9
-65 add 11 14 64
-66 uext 11 42 1
-67 eq 1 14 66
-68 ite 11 67 12 65
-69 ite 11 3 68 12
-70 next 11 13 69
-71 next 1 29 33
-72 next 1 31 6
+12 state 11 count
+13 const 11 1111111111
+14 neq 1 12 13
+15 const 1 0
+16 ite 1 3 5 15
+17 not 1 14
+18 and 1 16 17
+19 bad 18 P0 ; counter.sv:17.5-18.78
+20 state 1
+21 init 1 20 15
+22 state 1
+23 init 1 22 15
+24 or 1 20 22
+25 not 1 24
+26 or 1 3 25
+27 constraint 26
+28 not 1 2
+29 not 1 5
+30 or 1 28 29
+31 constraint 30
+32 sort bitvec 6
+33 const 32 111111
+34 uext 11 33 4
+35 neq 1 12 34
+36 not 1 35
+37 and 1 16 36
+38 bad 37 P4 ; counter.sv:25.5-26.85
+39 sort bitvec 9
+40 const 39 111111111
+41 uext 11 40 1
+42 neq 1 12 41
+43 not 1 42
+44 and 1 16 43
+45 bad 44 P1 ; counter.sv:19.5-20.85
+46 sort bitvec 8
+47 const 46 11111111
+48 uext 11 47 2
+49 neq 1 12 48
+50 not 1 49
+51 and 1 16 50
+52 bad 51 P2 ; counter.sv:21.5-22.85
+53 sort bitvec 7
+54 const 53 1111111
+55 uext 11 54 3
+56 neq 1 12 55
+57 not 1 56
+58 and 1 16 57
+59 bad 58 P3 ; counter.sv:23.5-24.85
+60 next 1 6 15
+61 const 11 0000000000
+62 uext 11 5 9
+63 add 11 12 62
+64 uext 11 40 1
+65 eq 1 12 64
+66 ite 11 65 61 63
+67 ite 11 3 66 61
+68 next 11 12 67
+69 next 1 20 24
+70 next 1 22 6
 ; end of yosys output
