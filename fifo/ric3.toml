@@ -2,3 +2,6 @@
 top = "fifo"
 files = ["fifo.sv", "prop.sv"]
 reset = "!rst_n"
+
+[formal]
+invariants = "invariants.sv"
