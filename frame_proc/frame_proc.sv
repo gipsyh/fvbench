@@ -353,29 +353,13 @@ module frame_proc #(
     //==============================================================
     // 3. 辅助逻辑 (保持不变)
     //==============================================================
-    logic [   PSN_WIDTH-1:0] ref_exp_psn;
-    logic                    ref_inside_frame;
-    logic                    ref_is_correct;
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
-            ref_inside_frame <= 1'b0;
-            ref_exp_psn      <= '0;
         end else if (i_valid_1 && o_ready_1) begin
             fv_target_id <= fv_target_id;
-            if (i_frame_type == 2'd0) ref_inside_frame <= 1'b1;
-            else if (i_frame_type == 2'd2) ref_inside_frame <= 1'b0;
-
-            if (ref_is_correct) begin
-                ref_exp_psn <= ref_exp_psn + 1'b1;
-            end
         end
     end
-
-    assign seq_ok = (i_frame_type == 2'd0) || ref_inside_frame;
-    assign psn_ok = (i_frame_psn == ref_exp_psn);
-    assign type_ok = (i_frame_type != 2'd3);
-    assign ref_is_correct = seq_ok && psn_ok && type_ok;
 
     //==============================================================
     // 4. 数据捕获 (保持不变)
@@ -394,8 +378,8 @@ module frame_proc #(
         end else if (i_valid_1 && o_ready_1 && (cnt_in == fv_target_id)) begin
             target_valid <= 1'b1;
             saved_psn    <= i_frame_psn;
-            saved_is_correct <= ref_is_correct;
-            if (ref_is_correct) saved_expected_data <= i_frame_data + i_frame_psn;
+            saved_is_correct <= frame_is_correct;
+            if (frame_is_correct) saved_expected_data <= i_frame_data + i_frame_psn;
             else saved_expected_data <= 256'd0;
         end
     end
